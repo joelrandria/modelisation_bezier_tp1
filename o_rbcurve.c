@@ -1,17 +1,10 @@
+#include "o_rbcurve.h"
 #include "o_objet.h"
 #include "t_geometrie.h"
 
 #include <GL/gl.h>
 
 #include <stdio.h>
-
-struct rbcurve
-{
-  Table_quadruplet polycontrol;
-  int display_point_count;
-
-  Table_triplet curve_points;
-};
 
 static Triplet rbcurve_point_at(struct rbcurve* curve, float position)
 {
@@ -60,7 +53,7 @@ static Triplet rbcurve_point_at(struct rbcurve* curve, float position)
   curve_point.y = curve_hpoint.y / curve_hpoint.h;
   curve_point.z = curve_hpoint.z / curve_hpoint.h;
 
-  printf("c(u=%f)=<%f,%f,%f>\r\n", position, curve_point.x, curve_point.y, curve_point.z);
+  //printf("c(u=%f)=<%f,%f,%f>\r\n", position, curve_point.x, curve_point.y, curve_point.z);
 
   return curve_point;
 }
@@ -76,13 +69,13 @@ static Triplet* rbcurve_points(struct rbcurve* curve)
   step = 1.0f / (curve->display_point_count - 1);
   ALLOUER(curve_points, curve->display_point_count);
 
-  printf("----- Polygone de contrôle-----\r\n");
-  for (i = 0; i < curve->polycontrol.nb; ++i)
-    printf("<%f,%f,%f>\r\n",
-	   curve->polycontrol.table[i].x,
-	   curve->polycontrol.table[i].y,
-	   curve->polycontrol.table[i].z);
-  printf("-------------------------------\r\n");
+  /* printf("----- Polygone de contrôle-----\r\n"); */
+  /* for (i = 0; i < curve->polycontrol.nb; ++i) */
+  /*   printf("<%f,%f,%f>\r\n", */
+  /* 	   curve->polycontrol.table[i].x, */
+  /* 	   curve->polycontrol.table[i].y, */
+  /* 	   curve->polycontrol.table[i].z); */
+  /* printf("-------------------------------\r\n"); */
 
   for (i = 1; i < curve->display_point_count; ++i)
     curve_points[i] = rbcurve_point_at(curve, i * step);
@@ -114,6 +107,7 @@ static void update(struct rbcurve* curve)
     rbcurve_update(curve);
   }
 }
+
 static void draw(struct rbcurve* curve)
 {
   int i;
@@ -142,10 +136,16 @@ static void draw(struct rbcurve* curve)
 }
 
 CLASSE(rbcurve, struct rbcurve,
+
        CHAMP(polycontrol,
 	     LABEL("Polygone de contrôle")
 	     L_table_point P_table_quadruplet
 	     Extrait Obligatoire Affiche Edite Sauve)
+
+       CHAMP(display_polycontrol,
+	     LABEL("Affichage du polygone de contrôle")
+	     L_booleen DEFAUT("1"))
+
        CHAMP(display_point_count,
 	     LABEL("Nombre de points à afficher")
              L_entier  Edite Sauve DEFAUT("10"))
@@ -155,5 +155,6 @@ CLASSE(rbcurve, struct rbcurve,
        CHAMP_VIRTUEL(L_affiche_gl(draw))
 
        MENU("Jo/Rationnal B-Curve")
+
        EVENEMENT("Ctrl+RB")
        )
