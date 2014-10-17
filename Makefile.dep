@@ -1,0 +1,57 @@
+figure.o: figure.c /home/jo/m2im/NE-2.5/TPMG/../COEUR/o_objet.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/eprintf.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_geometrie.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_memoire.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_widget.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_etat.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_geometrie.h
+o_cerc.o: o_cerc.c /home/jo/m2im/NE-2.5/TPMG/../COEUR/o_objet.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/eprintf.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_geometrie.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_memoire.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_widget.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_etat.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../OBJETS/u_table.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_geometrie.h figure.h
+o_rbcurve.o: o_rbcurve.c /home/jo/m2im/NE-2.5/TPMG/../COEUR/o_objet.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/eprintf.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_geometrie.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_memoire.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_widget.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_etat.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_geometrie.h
+o_sph.o: o_sph.c /home/jo/m2im/NE-2.5/TPMG/../COEUR/o_objet.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/eprintf.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_geometrie.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/codec.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/l_liste.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_memoire.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_widget.h \
+ /home/jo/m2im/NE-2.5/TPMG/../UTILITAIRES/u_etat.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_base.h \
+ /home/jo/m2im/NE-2.5/TPMG/../TYPES/t_geometrie.h figure.h
