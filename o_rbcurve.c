@@ -76,7 +76,6 @@ static Triplet* rbcurve_points(struct rbcurve* curve)
 
   return curve_points;
 }
-
 static void rbcurve_update(struct rbcurve* curve)
 {
   if (curve->curve_points.nb > 0)
@@ -97,6 +96,23 @@ static void update(struct rbcurve* curve)
       curve->display_point_count = 10;
 
     rbcurve_update(curve);
+  }
+  if (CHAMP_CHANGE(curve, parameterized_range_start) || CHAMP_CHANGE(curve, parameterized_range_end))
+  {
+    printf("Intervalle paramétré modifié: [%f,%f]\r\n",
+	   curve->parameterized_range_start,
+	   curve->parameterized_range_end);
+
+    if ((curve->parameterized_range_start < 0) || (curve->parameterized_range_end > 1)
+	|| (curve->parameterized_range_start > curve->parameterized_range_end))
+    {
+      printf("Intervalle de paramétrage invalide: [%f,%f]\r\n",
+	     curve->parameterized_range_start,
+	     curve->parameterized_range_end);
+
+      curve->parameterized_range_start = 0.0f;
+      curve->parameterized_range_end = 1.0f;
+    }
   }
 }
 
@@ -139,10 +155,18 @@ CLASSE(rbcurve, struct rbcurve,
 	     L_table_point P_table_quadruplet
 	     Extrait Obligatoire Affiche Edite Sauve)
 
+       CHAMP(parameterized_range_start,
+	     LABEL("Début de l'intervalle de paramétrisation:")
+	     L_flottant P_flottant
+	     Extrait Affiche Edite Sauve DEFAUT("0.0"))
+       CHAMP(parameterized_range_end,
+	     LABEL("Fin de l'intervalle de paramétrisation:")
+	     L_flottant P_flottant
+	     Extrait Affiche Edite Sauve DEFAUT("1.0"))
+
        CHAMP(display_polycontrol,
 	     LABEL("Affichage du polygone de contrôle")
 	     L_booleen Edite DEFAUT("1"))
-
        CHAMP(display_point_count,
 	     LABEL("Nombre de points à afficher")
              L_entier  Edite Sauve DEFAUT("10"))

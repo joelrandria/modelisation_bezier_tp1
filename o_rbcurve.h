@@ -9,9 +9,19 @@
  */
 struct rbcurve
 {
-  // --- Champs accessibles par l'utilisateur ---
+  // --- Polygone de contrôle définissant la courbe initiale ---
 
-  Table_quadruplet polycontrol;	// Points 4D homogènes définissant le polygone de contrôle
+  Table_quadruplet polycontrol;
+
+  // --- Paramétrisation ---
+
+  Flottant parameterized_range_start;		// Début de l'intervalle de restriction paramétrique
+  Flottant parameterized_range_end;		// Fin de l'intervalle de restriction paramétrique
+
+  Table_quadruplet parameterized_polycontrol;	// Polygone de contrôle de la courbe paramétrée
+
+  // --- Options d'affichage
+
   Booleen display_polycontrol;	// Bascule d'affichage du polygone de contrôle
   int display_point_count;	// Nombre de points de la courbe à afficher
 
