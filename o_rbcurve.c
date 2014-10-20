@@ -11,49 +11,51 @@ static Triplet rbcurve_point_at(struct rbcurve* curve, float position)
   int i;
   int j;
   Triplet curve_point;
-  Grille_quadruplet hpoint_grid;
+  Quadruplet current_hpoint;
   Quadruplet parent_hpoint1;
   Quadruplet parent_hpoint2;
-  Quadruplet current_hpoint;
-  Quadruplet curve_hpoint;
+  Table_quadruplet working_vect;
+  Table_quadruplet current_matrix_column;
 
-  // Allocation de la matrice de travail
-  hpoint_grid.nb_lignes = curve->polycontrol.nb;
-  hpoint_grid.nb_colonnes = curve->polycontrol.nb;
+  // Allocation des tables de travail
+  current_matrix_column.nb = curve->polycontrol.nb;
+  ALLOUER(current_matrix_column.table, current_matrix_column.nb);
 
-  hpoint_grid.grille = malloc(sizeof(Quadruplet*) * hpoint_grid.nb_lignes);
-  for (i = 0; i < hpoint_grid.nb_lignes; ++i)
-    hpoint_grid.grille[i] = malloc(sizeof(Quadruplet) * hpoint_grid.nb_colonnes);
+  working_vect.nb = curve->polycontrol.nb - 1;
+  ALLOUER(working_vect.table, working_vect.nb);
 
   // Initialisation de la 1ère colonne: Points du polygone de contrôle
   for (i = 0; i < curve->polycontrol.nb; ++i)
-    hpoint_grid.grille[i][0] = curve->polycontrol.table[i];
+    current_matrix_column.table[i] = curve->polycontrol.table[i];
 
-  for (i = 1; i < hpoint_grid.nb_colonnes; ++i)
+  // Itération jusqu'à obtention de la colonne finale (i.e. du point final)
+  for (i = 1; i < curve->polycontrol.nb; ++i)
   {
-    for (j = 0; j < hpoint_grid.nb_lignes - i; ++j)
+    for (j = 0; j < curve->polycontrol.nb - i; ++j)
     {
-      parent_hpoint1 = hpoint_grid.grille[j][i - 1];
-      parent_hpoint2 = hpoint_grid.grille[j + 1][i - 1];
+      parent_hpoint1 = current_matrix_column.table[j];
+      parent_hpoint2 = current_matrix_column.table[j + 1];
 
       current_hpoint.x = parent_hpoint1.x * (1 - position) + parent_hpoint2.x * position;
       current_hpoint.y = parent_hpoint1.y * (1 - position) + parent_hpoint2.y * position;
       current_hpoint.z = parent_hpoint1.z * (1 - position) + parent_hpoint2.z * position;
       current_hpoint.h = parent_hpoint1.h * (1 - position) + parent_hpoint2.h * position;
 
-      hpoint_grid.grille[j][i] = current_hpoint;
+      working_vect.table[j] = current_hpoint;
     }
+
+    for (j = 0; j < curve->polycontrol.nb - i; ++j)
+      current_matrix_column.table[j] = working_vect.table[j];
   }
 
-  // ToDo: Libération de la matrice de travail
+  // Projection finale du point obtenu
+  curve_point.x = current_matrix_column.table[0].x / current_matrix_column.table[0].h;
+  curve_point.y = current_matrix_column.table[0].y / current_matrix_column.table[0].h;
+  curve_point.z = current_matrix_column.table[0].z / current_matrix_column.table[0].h;
 
-  curve_hpoint = hpoint_grid.grille[0][hpoint_grid.nb_colonnes - 1];
-
-  curve_point.x = curve_hpoint.x / curve_hpoint.h;
-  curve_point.y = curve_hpoint.y / curve_hpoint.h;
-  curve_point.z = curve_hpoint.z / curve_hpoint.h;
-
-  //printf("c(u=%f)=<%f,%f,%f>\r\n", position, curve_point.x, curve_point.y, curve_point.z);
+  // Libération des tables de travail
+  free(current_matrix_column.table);
+  free(working_vect.table);
 
   return curve_point;
 }
@@ -69,14 +71,6 @@ static Triplet* rbcurve_points(struct rbcurve* curve)
   step = 1.0f / (curve->display_point_count - 1);
   ALLOUER(curve_points, curve->display_point_count);
 
-  /* printf("----- Polygone de contrôle-----\r\n"); */
-  /* for (i = 0; i < curve->polycontrol.nb; ++i) */
-  /*   printf("<%f,%f,%f>\r\n", */
-  /* 	   curve->polycontrol.table[i].x, */
-  /* 	   curve->polycontrol.table[i].y, */
-  /* 	   curve->polycontrol.table[i].z); */
-  /* printf("-------------------------------\r\n"); */
-
   for (i = 1; i < curve->display_point_count; ++i)
     curve_points[i] = rbcurve_point_at(curve, i * step);
 
@@ -85,8 +79,6 @@ static Triplet* rbcurve_points(struct rbcurve* curve)
 
 static void rbcurve_update(struct rbcurve* curve)
 {
-  printf("\r\n\r\n======= rbcurve_update() =======\r\n\r\n");
-
   if (curve->curve_points.nb > 0)
     free(curve->curve_points.table);
 
@@ -113,16 +105,21 @@ static void draw(struct rbcurve* curve)
   int i;
 
   glBegin(GL_POINTS);
-  glColor3f(0, 1, 0);
 
-  for (i = 0; i < curve->polycontrol.nb; ++i)
+  // Affichage des points de contrôle
+  if (curve->display_polycontrol)
   {
-    glPointSize(2);
-    glVertex3f(curve->polycontrol.table[i].x,
-  	       curve->polycontrol.table[i].y,
-  	       curve->polycontrol.table[i].z);
+    glColor3f(0, 1, 0);
+    for (i = 0; i < curve->polycontrol.nb; ++i)
+    {
+      glPointSize(2);
+      glVertex3f(curve->polycontrol.table[i].x,
+		 curve->polycontrol.table[i].y,
+		 curve->polycontrol.table[i].z);
+    }
   }
 
+  // Affichage des points de la courbe
   glColor3f(1, 1, 1);
   for (i = 0; i < curve->curve_points.nb; ++i)
   {
@@ -144,7 +141,7 @@ CLASSE(rbcurve, struct rbcurve,
 
        CHAMP(display_polycontrol,
 	     LABEL("Affichage du polygone de contrôle")
-	     L_booleen DEFAUT("1"))
+	     L_booleen Edite DEFAUT("1"))
 
        CHAMP(display_point_count,
 	     LABEL("Nombre de points à afficher")
