@@ -6,56 +6,83 @@
 
 #include <stdio.h>
 
+static Table_quadruplet* malloc_table_quadruplet(int size)
+{
+  Table_quadruplet* table;
+
+  ALLOUER(table, 1);
+
+  table->nb = size;
+  ALLOUER(table->table, table->nb);
+
+  return table;
+}
+static void free_table_quadruplet(Table_quadruplet* table)
+{
+  if (table->nb > 0)
+    free(table->table);
+
+  free(table);
+}
+
+static void quadruplet_linear_interpolation(Quadruplet* hpoint1, Quadruplet* hpoint2,
+					    Quadruplet* hresult, float position)
+{
+  float origin_offset;
+
+  origin_offset = 1.0f - position;
+
+  hresult->x = hpoint1->x * origin_offset + hpoint2->x * position;
+  hresult->y = hpoint1->y * origin_offset + hpoint2->y * position;
+  hresult->z = hpoint1->z * origin_offset + hpoint2->z * position;
+  hresult->h = hpoint1->h * origin_offset + hpoint2->h * position;
+}
+static void quadruplet_project(Quadruplet* hpoint, Triplet* result)
+{
+  result->x = hpoint->x / hpoint->h;
+  result->y = hpoint->y / hpoint->h;
+  result->z = hpoint->z / hpoint->h;
+}
+
 static Triplet rbcurve_casteljau(struct rbcurve* curve, float position)
 {
   int i;
   int j;
   Triplet curve_point;
   Quadruplet current_hpoint;
-  Quadruplet parent_hpoint1;
-  Quadruplet parent_hpoint2;
-  Table_quadruplet temp_points;
-  Table_quadruplet current_points;
+  Table_quadruplet* temp_points;
+  Table_quadruplet* current_points;
 
   // Allocation des tables de travail
-  current_points.nb = curve->param_polycontrol.nb;
-  ALLOUER(current_points.table, current_points.nb);
-
-  temp_points.nb = curve->param_polycontrol.nb - 1;
-  ALLOUER(temp_points.table, temp_points.nb);
+  temp_points = malloc_table_quadruplet(curve->param_polycontrol.nb);
+  current_points = malloc_table_quadruplet(curve->param_polycontrol.nb);
 
   // Initialisation de la 1ère colonne: Points du polygone de contrôle
   for (i = 0; i < curve->param_polycontrol.nb; ++i)
-    current_points.table[i] = curve->param_polycontrol.table[i];
+    current_points->table[i] = curve->param_polycontrol.table[i];
 
   // Itération jusqu'à obtention de la colonne finale (i.e. du point final)
   for (i = 1; i < curve->param_polycontrol.nb; ++i)
   {
     for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
     {
-      parent_hpoint1 = current_points.table[j];
-      parent_hpoint2 = current_points.table[j + 1];
+      quadruplet_linear_interpolation(&current_points->table[j],
+				      &current_points->table[j + 1],
+				      &current_hpoint, position);
 
-      current_hpoint.x = parent_hpoint1.x * (1 - position) + parent_hpoint2.x * position;
-      current_hpoint.y = parent_hpoint1.y * (1 - position) + parent_hpoint2.y * position;
-      current_hpoint.z = parent_hpoint1.z * (1 - position) + parent_hpoint2.z * position;
-      current_hpoint.h = parent_hpoint1.h * (1 - position) + parent_hpoint2.h * position;
-
-      temp_points.table[j] = current_hpoint;
+      temp_points->table[j] = current_hpoint;
     }
 
     for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
-      current_points.table[j] = temp_points.table[j];
+      current_points->table[j] = temp_points->table[j];
   }
 
   // Projection finale du point obtenu
-  curve_point.x = current_points.table[0].x / current_points.table[0].h;
-  curve_point.y = current_points.table[0].y / current_points.table[0].h;
-  curve_point.z = current_points.table[0].z / current_points.table[0].h;
+  quadruplet_project(&current_points->table[0], &curve_point);
 
   // Libération des tables de travail
-  free(current_points.table);
-  free(temp_points.table);
+  free_table_quadruplet(temp_points);
+  free_table_quadruplet(current_points);
 
   return curve_point;
 }
