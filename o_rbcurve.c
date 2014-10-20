@@ -56,7 +56,6 @@ static Triplet rbcurve_casteljau(struct rbcurve* curve, float position)
   int i;
   int j;
   Triplet curve_point;
-  Quadruplet current_hpoint;
   Table_quadruplet* temp_points;
   Table_quadruplet* current_points;
 
@@ -74,9 +73,7 @@ static Triplet rbcurve_casteljau(struct rbcurve* curve, float position)
     {
       quadruplet_linear_interpolation(&current_points->table[j],
 				      &current_points->table[j + 1],
-				      &current_hpoint, position);
-
-      temp_points->table[j] = current_hpoint;
+				      &temp_points->table[j], position);
     }
 
     for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
