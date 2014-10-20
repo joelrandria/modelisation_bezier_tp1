@@ -17,6 +17,13 @@ static Table_quadruplet* malloc_table_quadruplet(int size)
 
   return table;
 }
+static void copy_table_quadruplet(Table_quadruplet* table_src, Table_quadruplet* table_dst)
+{
+  int i;
+
+  for (i = 0; i < table_src->nb; ++i)
+    table_dst->table[i] = table_src->table[i];
+}
 static void free_table_quadruplet(Table_quadruplet* table)
 {
   if (table->nb > 0)
@@ -58,8 +65,7 @@ static Triplet rbcurve_casteljau(struct rbcurve* curve, float position)
   current_points = malloc_table_quadruplet(curve->param_polycontrol.nb);
 
   // Initialisation de la 1ère colonne: Points du polygone de contrôle
-  for (i = 0; i < curve->param_polycontrol.nb; ++i)
-    current_points->table[i] = curve->param_polycontrol.table[i];
+  copy_table_quadruplet(&curve->param_polycontrol, current_points);
 
   // Itération jusqu'à obtention de la colonne finale (i.e. du point final)
   for (i = 1; i < curve->param_polycontrol.nb; ++i)
@@ -75,6 +81,8 @@ static Triplet rbcurve_casteljau(struct rbcurve* curve, float position)
 
     for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
       current_points->table[j] = temp_points->table[j];
+
+    copy_table_quadruplet(temp_points, current_points);
   }
 
   // Projection finale du point obtenu
