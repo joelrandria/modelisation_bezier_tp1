@@ -18,20 +18,20 @@ static Triplet rbcurve_point_at(struct rbcurve* curve, float position)
   Table_quadruplet current_matrix_column;
 
   // Allocation des tables de travail
-  current_matrix_column.nb = curve->polycontrol.nb;
+  current_matrix_column.nb = curve->param_polycontrol.nb;
   ALLOUER(current_matrix_column.table, current_matrix_column.nb);
 
-  working_vect.nb = curve->polycontrol.nb - 1;
+  working_vect.nb = curve->param_polycontrol.nb - 1;
   ALLOUER(working_vect.table, working_vect.nb);
 
   // Initialisation de la 1ère colonne: Points du polygone de contrôle
-  for (i = 0; i < curve->polycontrol.nb; ++i)
-    current_matrix_column.table[i] = curve->polycontrol.table[i];
+  for (i = 0; i < curve->param_polycontrol.nb; ++i)
+    current_matrix_column.table[i] = curve->param_polycontrol.table[i];
 
   // Itération jusqu'à obtention de la colonne finale (i.e. du point final)
-  for (i = 1; i < curve->polycontrol.nb; ++i)
+  for (i = 1; i < curve->param_polycontrol.nb; ++i)
   {
-    for (j = 0; j < curve->polycontrol.nb - i; ++j)
+    for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
     {
       parent_hpoint1 = current_matrix_column.table[j];
       parent_hpoint2 = current_matrix_column.table[j + 1];
@@ -44,7 +44,7 @@ static Triplet rbcurve_point_at(struct rbcurve* curve, float position)
       working_vect.table[j] = current_hpoint;
     }
 
-    for (j = 0; j < curve->polycontrol.nb - i; ++j)
+    for (j = 0; j < curve->param_polycontrol.nb - i; ++j)
       current_matrix_column.table[j] = working_vect.table[j];
   }
 
@@ -76,7 +76,7 @@ static Triplet* rbcurve_points(struct rbcurve* curve)
 
   return curve_points;
 }
-static void rbcurve_update(struct rbcurve* curve)
+static void rbcurve_update_curve_points(struct rbcurve* curve)
 {
   if (curve->curve_points.nb > 0)
     free(curve->curve_points.table);
@@ -84,35 +84,52 @@ static void rbcurve_update(struct rbcurve* curve)
   curve->curve_points.nb = curve->display_point_count;
   curve->curve_points.table = rbcurve_points(curve);
 }
+static void rbcurve_update_param_polycontrol(struct rbcurve* curve)
+{
+  int i;
+
+  if (curve->param_polycontrol.nb > 0)
+    free(curve->param_polycontrol.table);
+
+  // TEST: Copie tel quel du polygone de contrôle initial
+
+  curve->param_polycontrol.nb = curve->polycontrol.nb;
+  ALLOUER(curve->param_polycontrol.table, curve->param_polycontrol.nb);
+
+  for (i = 0; i < curve->polycontrol.nb; ++i)
+    curve->param_polycontrol.table[i] = curve->polycontrol.table[i];
+
+  // ---------------------------------------------------------------------
+
+  rbcurve_update_curve_points(curve);
+}
 
 static void update(struct rbcurve* curve)
 {
   if (!(UN_CHAMP_CHANGE(curve)||CREATION(curve)))
     return ;
 
-  if (CHAMP_CHANGE(curve, polycontrol) || CHAMP_CHANGE(curve, display_point_count))
+  if (CHAMP_CHANGE(curve, polycontrol))
   {
     if (curve->display_point_count < 2)
       curve->display_point_count = 10;
 
-    rbcurve_update(curve);
+    rbcurve_update_param_polycontrol(curve);
   }
-  if (CHAMP_CHANGE(curve, parameterized_range_start) || CHAMP_CHANGE(curve, parameterized_range_end))
+  if (CHAMP_CHANGE(curve, param_range_start) || CHAMP_CHANGE(curve, param_range_end))
   {
-    printf("Intervalle paramétré modifié: [%f,%f]\r\n",
-	   curve->parameterized_range_start,
-	   curve->parameterized_range_end);
-
-    if ((curve->parameterized_range_start < 0) || (curve->parameterized_range_end > 1)
-	|| (curve->parameterized_range_start > curve->parameterized_range_end))
+    if ((curve->param_range_start < 0) || (curve->param_range_end > 1)
+	|| (curve->param_range_start > curve->param_range_end))
     {
-      printf("Intervalle de paramétrage invalide: [%f,%f]\r\n",
-	     curve->parameterized_range_start,
-	     curve->parameterized_range_end);
-
-      curve->parameterized_range_start = 0.0f;
-      curve->parameterized_range_end = 1.0f;
+      curve->param_range_start = 0.0f;
+      curve->param_range_end = 1.0f;
     }
+
+    rbcurve_update_param_polycontrol(curve);
+  }
+  if (CHAMP_CHANGE(curve, display_point_count))
+  {
+    rbcurve_update_curve_points(curve);
   }
 }
 
@@ -130,8 +147,8 @@ static void draw(struct rbcurve* curve)
     {
       glPointSize(2);
       glVertex3f(curve->polycontrol.table[i].x,
-		 curve->polycontrol.table[i].y,
-		 curve->polycontrol.table[i].z);
+  		 curve->polycontrol.table[i].y,
+  		 curve->polycontrol.table[i].z);
     }
   }
 
@@ -155,11 +172,11 @@ CLASSE(rbcurve, struct rbcurve,
 	     L_table_point P_table_quadruplet
 	     Extrait Obligatoire Affiche Edite Sauve)
 
-       CHAMP(parameterized_range_start,
+       CHAMP(param_range_start,
 	     LABEL("Début de l'intervalle de paramétrisation:")
 	     L_flottant P_flottant
 	     Extrait Affiche Edite Sauve DEFAUT("0.0"))
-       CHAMP(parameterized_range_end,
+       CHAMP(param_range_end,
 	     LABEL("Fin de l'intervalle de paramétrisation:")
 	     L_flottant P_flottant
 	     Extrait Affiche Edite Sauve DEFAUT("1.0"))

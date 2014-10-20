@@ -15,10 +15,10 @@ struct rbcurve
 
   // --- Paramétrisation ---
 
-  Flottant parameterized_range_start;		// Début de l'intervalle de restriction paramétrique
-  Flottant parameterized_range_end;		// Fin de l'intervalle de restriction paramétrique
+  Flottant param_range_start;		// Début de l'intervalle de restriction paramétrique
+  Flottant param_range_end;		// Fin de l'intervalle de restriction paramétrique
 
-  Table_quadruplet parameterized_polycontrol;	// Polygone de contrôle de la courbe paramétrée
+  Table_quadruplet param_polycontrol;	// Polygone de contrôle de la courbe paramétrée
 
   // --- Options d'affichage
 
