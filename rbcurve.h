@@ -9,25 +9,19 @@
  */
 struct rbcurve
 {
-  // --- Polygone de contrôle définissant la courbe initiale ---
+  // --- Courbe initiale ---
 
-  Table_quadruplet polycontrol;
+  Table_quadruplet base_curve_polygon;		// Polygone de contrôle initial
+  Table_triplet base_curve_points;		// Points 3D de la courbe à afficher
+  Booleen display_base_curve_polygon;		// Bascule d'affichage du polygone de contrôle
+  int base_curve_point_count;			// Nombre de points de la courbe à afficher
 
-  // --- Paramétrisation ---
+  // --- Courbe paramétrée ---
 
-  Flottant param_range_start;		// Début de l'intervalle de restriction paramétrique
-  Flottant param_range_end;		// Fin de l'intervalle de restriction paramétrique
+  Flottant param_range_start;			// Début de l'intervalle de restriction paramétrique
+  Flottant param_range_end;			// Fin de l'intervalle de restriction paramétrique
+  Table_quadruplet param_curve_polygon;		// Polygone de contrôle de la courbe paramétrée
 
-  Table_quadruplet param_polycontrol;	// Polygone de contrôle de la courbe paramétrée
-
-  // --- Options d'affichage
-
-  Booleen display_polycontrol;	// Bascule d'affichage du polygone de contrôle
-  int display_point_count;	// Nombre de points de la courbe à afficher
-
-  // --- Interne ---
-
-  Table_triplet curve_points;	// Points 3D de la courbe à afficher
 };
 
 #endif

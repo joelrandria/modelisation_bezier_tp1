@@ -1,4 +1,5 @@
 #include "rbcurve_casteljau.h"
+#include "ne_utils.h"
 
 static void quadruplet_linear_interpolation(Quadruplet* hpoint1, Quadruplet* hpoint2,
 					    Quadruplet* hresult, float position)
