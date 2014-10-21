@@ -1,5 +1,5 @@
-#ifndef __O_RBCURVE_H__
-#define __O_RBCURVE_H__
+#ifndef __RBCURVE_H__
+#define __RBCURVE_H__
 
 #include "o_objet.h"
 #include "t_geometrie.h"
@@ -29,7 +29,5 @@ struct rbcurve
 
   Table_triplet curve_points;	// Points 3D de la courbe à afficher
 };
-
-
 
 #endif
