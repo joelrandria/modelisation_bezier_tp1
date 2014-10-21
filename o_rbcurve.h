@@ -5,7 +5,7 @@
 #include "t_geometrie.h"
 
 /**
- * Courbe de Bézier rationnelle.
+ * Définit une courbe de Bézier rationnelle paramétrisable.
  */
 struct rbcurve
 {
@@ -29,5 +29,7 @@ struct rbcurve
 
   Table_triplet curve_points;	// Points 3D de la courbe à afficher
 };
+
+
 
 #endif

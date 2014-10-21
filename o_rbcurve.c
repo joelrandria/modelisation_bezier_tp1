@@ -92,6 +92,8 @@ static Triplet rbcurve_casteljau(Table_quadruplet* polycontrol,
 				      &temp_points->table[j], position);
     }
 
+    copy_table_quadruplet(temp_points, current_points);
+
     if (subcurve1_polycontrol != 0)
       subcurve1_polycontrol->table[i] = temp_points->table[0];
 
@@ -100,8 +102,6 @@ static Triplet rbcurve_casteljau(Table_quadruplet* polycontrol,
       reverse_index = polycontrol->nb - i - 1;
       subcurve2_polycontrol->table[reverse_index] = current_points->table[reverse_index];
     }
-
-    copy_table_quadruplet(temp_points, current_points);
   }
 
   // Projection finale du point obtenu
