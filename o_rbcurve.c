@@ -8,29 +8,45 @@
 
 #include <stdio.h>
 
-static Triplet* rbcurve_compute_display_points(struct rbcurve* curve)
+static Triplet* rbcurve_compute_display_points(Table_quadruplet* polygon, int point_count)
 {
   int i;
   float step;
   Triplet* curve_points;
 
-  step = 1.0f / (curve->base_curve_point_count - 1);
-  ALLOUER(curve_points, curve->base_curve_point_count);
+  step = 1.0f / (point_count - 1);
+  ALLOUER(curve_points, point_count);
 
-  for (i = 1; i < curve->base_curve_point_count; ++i)
-    curve_points[i] = rbcurve_casteljau(&curve->param_curve_polygon, i * step, 0, 0);
+  for (i = 1; i < point_count; ++i)
+    curve_points[i] = rbcurve_casteljau(polygon, i * step, 0, 0);
 
   return curve_points;
 }
-static void rbcurve_update_display_points(struct rbcurve* curve)
+static void rbcurve_compute_curve_points(Table_quadruplet* polygon,
+					 int point_count,
+					 Table_triplet* result_points)
 {
-  if (curve->base_curve_points.nb > 0)
-    free(curve->base_curve_points.table);
+  if (result_points->nb > 0)
+    free(result_points->table);
 
-  curve->base_curve_points.nb = curve->base_curve_point_count;
-  curve->base_curve_points.table = rbcurve_compute_display_points(curve);
+  result_points->nb = point_count;
+  result_points->table = rbcurve_compute_display_points(polygon, point_count);
 }
-static void rbcurve_update_param_polycontrol(struct rbcurve* curve)
+
+static void rbcurve_update_base_curve_points(struct rbcurve* curve)
+{
+  rbcurve_compute_curve_points(&curve->base_curve_polygon,
+			       curve->base_curve_point_count,
+			       &curve->base_curve_points);
+}
+
+static void rbcurve_update_param_curve_points(struct rbcurve* curve)
+{
+  rbcurve_compute_curve_points(&curve->param_curve_polygon,
+			       curve->param_curve_point_count,
+			       &curve->param_curve_points);
+}
+static void rbcurve_update_param_polygon(struct rbcurve* curve)
 {
   Flottant new_range_end;
 
@@ -51,21 +67,33 @@ static void rbcurve_update_param_polycontrol(struct rbcurve* curve)
 		    &curve->param_curve_polygon,
 		    0);
 
-  rbcurve_update_display_points(curve);
+  rbcurve_update_param_curve_points(curve);
+}
+
+static void rbcurve_update(struct rbcurve* curve)
+{
+  rbcurve_update_base_curve_points(curve);
+  rbcurve_update_param_polygon(curve);
 }
 
 static void update(struct rbcurve* curve)
 {
   if (!(UN_CHAMP_CHANGE(curve)||CREATION(curve)))
-    return ;
+    return;
 
   if (CHAMP_CHANGE(curve, base_curve_polygon))
+  {
+    rbcurve_update(curve);
+  }
+  if (CHAMP_CHANGE(curve, base_curve_point_count))
   {
     if (curve->base_curve_point_count < 2)
       curve->base_curve_point_count = 10;
 
-    rbcurve_update_param_polycontrol(curve);
+    // Peut poser un problème...
+    rbcurve_update_base_curve_points(curve);
   }
+
   if (CHAMP_CHANGE(curve, param_range_start) || CHAMP_CHANGE(curve, param_range_end))
   {
     if ((curve->param_range_start < 0) || (curve->param_range_end > 1)
@@ -75,11 +103,11 @@ static void update(struct rbcurve* curve)
       curve->param_range_end = 1.0f;
     }
 
-    rbcurve_update_param_polycontrol(curve);
+    rbcurve_update_param_polygon(curve);
   }
-  if (CHAMP_CHANGE(curve, base_curve_point_count))
+  if (CHAMP_CHANGE(curve, param_curve_point_count))
   {
-    rbcurve_update_display_points(curve);
+    rbcurve_update_param_curve_points(curve);
   }
 }
 
@@ -104,6 +132,12 @@ CLASSE(rbcurve, struct rbcurve,
 	     LABEL("Fin de l'intervalle de paramétrisation:")
 	     L_flottant P_flottant
 	     Extrait Affiche Edite Sauve DEFAUT("1.0"))
+       CHAMP(display_param_curve_polygon,
+	     LABEL("Affichage du polygone de contrôle (courbe paramétrique)")
+	     L_booleen Edite DEFAUT("1"))
+       CHAMP(param_curve_point_count,
+	     LABEL("Nombre de points à afficher (courbe paramétrique)")
+             L_entier  Edite Sauve DEFAUT("10"))
 
        CHANGEMENT(update)
 
