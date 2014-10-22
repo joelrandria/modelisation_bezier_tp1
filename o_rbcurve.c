@@ -90,7 +90,6 @@ static void update(struct rbcurve* curve)
     if (curve->base_curve_point_count < 2)
       curve->base_curve_point_count = 10;
 
-    // Peut poser un problème...
     rbcurve_update_base_curve_points(curve);
   }
 
