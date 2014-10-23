@@ -1,25 +1,6 @@
 #include "rbcurve_casteljau.h"
 #include "ne_utils.h"
 
-static void quadruplet_linear_interpolation(Quadruplet* hpoint1, Quadruplet* hpoint2,
-					    Quadruplet* hresult, float position)
-{
-  float origin_offset;
-
-  origin_offset = 1.0f - position;
-
-  hresult->x = hpoint1->x * origin_offset + hpoint2->x * position;
-  hresult->y = hpoint1->y * origin_offset + hpoint2->y * position;
-  hresult->z = hpoint1->z * origin_offset + hpoint2->z * position;
-  hresult->h = hpoint1->h * origin_offset + hpoint2->h * position;
-}
-static void quadruplet_project(Quadruplet* hpoint, Triplet* result)
-{
-  result->x = hpoint->x / hpoint->h;
-  result->y = hpoint->y / hpoint->h;
-  result->z = hpoint->z / hpoint->h;
-}
-
 Triplet rbcurve_casteljau(Table_quadruplet* polycontrol,
 			  float position,
 			  Table_quadruplet* subcurve1_polycontrol,

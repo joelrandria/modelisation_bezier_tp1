@@ -1,3 +1,6 @@
+/**
+ * Implémentation d'un plug-in NanoÉdit d'une courbe de Bézier rationnelle paramétrable.
+ */
 #include "o_objet.h"
 #include "t_geometrie.h"
 
@@ -8,43 +11,56 @@
 
 #include <stdio.h>
 
-static Triplet* rbcurve_compute_display_points(Table_quadruplet* polygon, int point_count)
+/**
+ * Construit les points de la courbe de Bézier définie par le polygone de contrôle spécifié.
+ *
+ * @polygon: Pointeur vers la table de quadruplets définissant le polygone de contrôle de la courbe.
+ * @point_count: Le nombre de points de la courbe à calculer.
+ * @return: Pointeur vers la table de triplets contenant les points calculés.
+ */
+static Triplet* rbcurve_compute_curve_points(Table_quadruplet* polygon, int point_count)
 {
   int i;
   float step;
   Triplet* curve_points;
 
+  // Calcul du pas uniforme
   step = 1.0f / (point_count - 1);
   ALLOUER(curve_points, point_count);
 
-  for (i = 1; i < point_count; ++i)
+  // Calcul des 2 points extrémums
+  quadruplet_project(&polygon->table[0], &curve_points[0]);
+  quadruplet_project(&polygon->table[polygon->nb - 1], &curve_points[point_count - 1]);
+
+  // Calcul des points intermédiaires
+  for (i = 1; i < point_count - 1; ++i)
     curve_points[i] = rbcurve_casteljau(polygon, i * step, 0, 0);
 
   return curve_points;
 }
-static void rbcurve_compute_curve_points(Table_quadruplet* polygon,
-					 int point_count,
-					 Table_triplet* result_points)
+static void rbcurve_build_curve_points(Table_quadruplet* polygon,
+				       int point_count,
+				       Table_triplet* result_points)
 {
   if (result_points->nb > 0)
     free(result_points->table);
 
   result_points->nb = point_count;
-  result_points->table = rbcurve_compute_display_points(polygon, point_count);
+  result_points->table = rbcurve_compute_curve_points(polygon, point_count);
 }
 
 static void rbcurve_update_base_curve_points(struct rbcurve* curve)
 {
-  rbcurve_compute_curve_points(&curve->base_curve_polygon,
-			       curve->base_curve_point_count,
-			       &curve->base_curve_points);
+  rbcurve_build_curve_points(&curve->base_curve_polygon,
+			     curve->base_curve_point_count,
+			     &curve->base_curve_points);
 }
 
 static void rbcurve_update_param_curve_points(struct rbcurve* curve)
 {
-  rbcurve_compute_curve_points(&curve->param_curve_polygon,
-			       curve->param_curve_point_count,
-			       &curve->param_curve_points);
+  rbcurve_build_curve_points(&curve->param_curve_polygon,
+			     curve->param_curve_point_count,
+			     &curve->param_curve_points);
 }
 static void rbcurve_update_param_polygon(struct rbcurve* curve)
 {
@@ -106,6 +122,9 @@ static void update(struct rbcurve* curve)
   }
   if (CHAMP_CHANGE(curve, param_curve_point_count))
   {
+    if (curve->param_curve_point_count < 2)
+      curve->param_curve_point_count = 10;
+
     rbcurve_update_param_curve_points(curve);
   }
 }
