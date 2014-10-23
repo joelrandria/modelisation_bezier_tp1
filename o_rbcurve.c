@@ -109,7 +109,7 @@ static void rbcurve_update_param_polygon(struct rbcurve* curve)
  *
  * @curve: Pointeur vers la courbe de Bézier à mettre à jour.
  */
-static void rbcurve_update(struct rbcurve* curve)
+static void rbcurve_global_update(struct rbcurve* curve)
 {
   rbcurve_update_base_curve_points(curve);
   rbcurve_update_param_polygon(curve);
@@ -123,7 +123,7 @@ static void update(struct rbcurve* curve)
   if (CHAMP_CHANGE(curve, base_curve_polygon))
   {
     // Met intégralement à jour la courbe
-    rbcurve_update(curve);
+    rbcurve_global_update(curve);
   }
   if (CHAMP_CHANGE(curve, base_curve_point_count))
   {
